@@ -18,8 +18,8 @@ var logger = loggo.GetLogger("")
 func main() {
 	homedir, _ := os.UserHomeDir()
 	app := &cli.App{
-		Name:      "hub-sync",
-		UsageText: `hub-sync <what> [<from>]`,
+		Name:      "hub-cup",
+		UsageText: `hub-cup <what> [<from>]`,
 		Usage:     "Make your github forks catch up with origins",
 		Version:   "0.1.0",
 		HideHelp:  true,
