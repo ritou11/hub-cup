@@ -1,6 +1,7 @@
 package libhub
 
 import (
+  "fmt"
   "io/ioutil"
   "net/http"
   "encoding/json"
@@ -13,4 +14,8 @@ func respToJSON(r *http.Response, v interface{}) error {
 		return err
 	}
 	return json.Unmarshal(data, v)
+}
+
+func show(r repo) string {
+  return fmt.Sprintf("https://github.com/%s/%s/tree/%s", r.User, r.RepoName, r.Branch)
 }

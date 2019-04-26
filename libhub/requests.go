@@ -28,7 +28,7 @@ func New(token string) *hubCup {
   return cup
 }
 
-func (hc *hubCup) run(method string, path string, header *http.Header, res interface{}) (err error) {
+func (hc *hubCup) run(method string, path string, res interface{}) (err error) {
   resp, err := hc.Client.Do(&http.Request{
     Method: method,
     URL: &url.URL{
@@ -46,7 +46,7 @@ func (hc *hubCup) getMe() (string, error) {
   var me struct {
     Login string `json:"login"`
   }
-  err := hc.run("GET", "/user", hc.AuthHeader, &me)
+  err := hc.run("GET", "/user", &me)
   if err != nil{
     logger.Debugf("Get user error!")
     return "", err
@@ -59,11 +59,25 @@ func (hc *hubCup) getMe() (string, error) {
 }
 
 func (hc *hubCup) getRepo(rep repo) (rif repoInfo, err error) {
-  err = hc.run("GET", fmt.Sprintf("/repos/%s/%s", rep.User, rep.RepoName), hc.AuthHeader, &rif)
+  err = hc.run("GET", fmt.Sprintf("/repos/%s/%s", rep.User, rep.RepoName), &rif)
   logger.Debugf("%+v", rif)
   if err != nil{
     logger.Debugf("Get repo error!")
     return
   }
+  return
+}
+
+func (hc *hubCup) getRefs(rep repo) (sha string, err error) {
+  var shainfo struct {
+    Object struct {
+      Sha string `json: "object.sha"`
+    } `json: "object"`
+  }
+  err = hc.run("GET",
+    fmt.Sprintf("/repos/%s/%s/git/refs/heads/%s",
+      rep.User, rep.RepoName, rep.Branch),
+    &shainfo)
+  sha = shainfo.Object.Sha
   return
 }

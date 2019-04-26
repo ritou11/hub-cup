@@ -81,7 +81,12 @@ func (hc *hubCup) Cup(what string, from string, force bool, dryRun bool) error {
     fromRepo.Branch = whatRepo.Branch
   }
   logger.Debugf("Filled what:%+v; Filled from:%+v;", whatRepo, fromRepo)
-  
+  logger.Infof("Will update %s <- %s", show(whatRepo), show(fromRepo))
+  sha, err := hc.getRefs(fromRepo)
+  if err != nil {
+    return err
+  }
+  logger.Infof("Got head sha:%s", sha)
   if dryRun {
     logger.Infof("Stopped because of --dry-run.")
     return nil
