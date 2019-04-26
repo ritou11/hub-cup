@@ -79,12 +79,11 @@ func main() {
       }
       logger.Debugf("Token: %s", token)
       hc := libhub.New(token)
-      me, err := hc.GetMe()
+      err := hc.Cup(what, from)
       if err != nil {
         logger.Errorf(err.Error())
         return err
       }
-      logger.Debugf("Me: %s", me)
       return nil
     },
 		Authors: []cli.Author{{Name: "Nogeek", Email: "ritou11@gmail.com"}},

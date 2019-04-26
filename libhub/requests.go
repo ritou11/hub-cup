@@ -1,6 +1,7 @@
 package libhub
 
 import (
+  "fmt"
   "time"
   "errors"
   "net/http"
@@ -27,8 +28,8 @@ func New(token string) *hubCup {
   return cup
 }
 
-func (hc *hubCup) run(method string, path string, header *http.Header) (resp *http.Response, err error) {
-  resp, err = hc.Client.Do(&http.Request{
+func (hc *hubCup) run(method string, path string, header *http.Header, res interface{}) (err error) {
+  resp, err := hc.Client.Do(&http.Request{
     Method: method,
     URL: &url.URL{
       Scheme: "https",
@@ -37,19 +38,32 @@ func (hc *hubCup) run(method string, path string, header *http.Header) (resp *ht
     },
     Header: *hc.AuthHeader,
   })
+  respToJSON(resp, res)
   return
 }
 
-func (hc *hubCup) GetMe() (string, error) {
-  parsed := make(map[string]string)
-  r, err := hc.run("GET", "/user", hc.AuthHeader)
-  if err != nil {
+func (hc *hubCup) getMe() (string, error) {
+  var me struct {
+    Login string `json:"login"`
+  }
+  err := hc.run("GET", "/user", hc.AuthHeader, &me)
+  if err != nil{
     logger.Debugf("Get user error!")
     return "", err
   }
-  respToJSON(r, &parsed)
-  if len(parsed["login"]) == 0 {
-    return "", errors.New("Cannot get user!")
+  if err != nil || len(me.Login) == 0 {
+    logger.Debugf("Get user error!")
+    return "", errors.New("no-user")
   }
-  return parsed["login"], err
+  return me.Login, err
+}
+
+func (hc *hubCup) getRepo(rep repo) (rif repoInfo, err error) {
+  err = hc.run("GET", fmt.Sprintf("/repos/%s/%s", rep.User, rep.RepoName), hc.AuthHeader, &rif)
+  logger.Debugf("%+v", rif)
+  if err != nil{
+    logger.Debugf("Get repo error!")
+    return
+  }
+  return
 }
