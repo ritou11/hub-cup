@@ -79,7 +79,7 @@ func main() {
       }
       logger.Debugf("Token: %s", token)
       hc := libhub.New(token)
-      err := hc.Cup(what, from)
+      err := hc.Cup(what, from, c.Bool("force"), c.Bool("dry-run"))
       if err != nil {
         logger.Errorf(err.Error())
         return err

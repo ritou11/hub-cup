@@ -48,7 +48,7 @@ func parseRepo(str string, omitUser bool) (r repo) {
   return
 }
 
-func (hc *hubCup) Cup(what string, from string) error {
+func (hc *hubCup) Cup(what string, from string, force bool, dryRun bool) error {
   var err error
   logger.Debugf("Parsing repos...")
   whatRepo := parseRepo(what, true)
@@ -81,5 +81,11 @@ func (hc *hubCup) Cup(what string, from string) error {
     fromRepo.Branch = whatRepo.Branch
   }
   logger.Debugf("Filled what:%+v; Filled from:%+v;", whatRepo, fromRepo)
+  
+  if dryRun {
+    logger.Infof("Stopped because of --dry-run.")
+    return nil
+  }
+
   return nil
 }
