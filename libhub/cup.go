@@ -91,6 +91,10 @@ func (hc *hubCup) Cup(what string, from string, force bool, dryRun bool) error {
     logger.Infof("Stopped because of --dry-run.")
     return nil
   }
-
+  err = hc.setRefs(whatRepo, sha, force)
+  if err != nil {
+    return err
+  }
+  logger.Infof("Succeed, %s is at %s", show(whatRepo), sha)
   return nil
 }

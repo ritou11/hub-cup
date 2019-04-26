@@ -4,6 +4,9 @@ import (
   "fmt"
   "time"
   "errors"
+  "strings"
+  "strconv"
+  "io/ioutil"
   "net/http"
   "net/url"
 
@@ -28,7 +31,11 @@ func New(token string) *hubCup {
   return cup
 }
 
-func (hc *hubCup) run(method string, path string, res interface{}) (err error) {
+func (hc *hubCup) run(method string, path string, res interface{}, data ...string) (err error) {
+  var body string
+  if len(data) > 0 {
+    body = data[0]
+  }
   resp, err := hc.Client.Do(&http.Request{
     Method: method,
     URL: &url.URL{
@@ -37,6 +44,7 @@ func (hc *hubCup) run(method string, path string, res interface{}) (err error) {
       Path: path,
     },
     Header: *hc.AuthHeader,
+    Body: ioutil.NopCloser(strings.NewReader(body)),
   })
   respToJSON(resp, res)
   return
@@ -80,4 +88,14 @@ func (hc *hubCup) getRefs(rep repo) (sha string, err error) {
     &shainfo)
   sha = shainfo.Object.Sha
   return
+}
+
+func (hc *hubCup) setRefs(rep repo, sha string, force bool) (err error) {
+  var v string
+  err = hc.run("PATCH",
+    fmt.Sprintf("/repos/%s/%s/git/refs/heads/%s",
+      rep.User, rep.RepoName, rep.Branch), &v,
+      fmt.Sprintf(`{"sha":"%s","force":%s}`, sha, strconv.FormatBool(force)),
+    )
+  return nil
 }
