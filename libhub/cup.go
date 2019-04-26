@@ -1,6 +1,7 @@
 package libhub
 
 import (
+  "regexp"
 )
 
 type repo struct {
@@ -19,21 +20,39 @@ type repoInfo struct {
   } `json: "parent"`
 }
 
-func parseRepo(str string) (r repo, err error) {
-  // TODO
-  return repo{User:"", RepoName:"GoAuthing", Branch:""}, nil
+func parseRepo(str string, omitUser bool) (r repo) {
+  rgx := regexp.MustCompile(`/`)
+  strs := rgx.Split(str, 3)
+  switch len(strs) {
+  case 0:
+    return
+  case 1:
+    if omitUser {
+      r.RepoName = strs[0]
+    } else {
+      r.User = strs[0]
+    }
+  case 2:
+    if omitUser {
+      r.RepoName = strs[0]
+      r.Branch = strs[1]
+    } else {
+      r.User = strs[0]
+      r.RepoName = strs[1]
+    }
+  case 3:
+    r.User = strs[0]
+    r.RepoName = strs[1]
+    r.Branch = strs[2]
+  }
+  return
 }
 
 func (hc *hubCup) Cup(what string, from string) error {
+  var err error
   logger.Debugf("Parsing repos...")
-  whatRepo, err := parseRepo(what)
-  if err != nil {
-    return err
-  }
-  fromRepo, err := parseRepo(from)
-  if err != nil {
-    return err
-  }
+  whatRepo := parseRepo(what, true)
+  fromRepo := parseRepo(from, false)
   if len(whatRepo.User) == 0 {
     whatRepo.User, err = hc.getMe()
     if err != nil {
