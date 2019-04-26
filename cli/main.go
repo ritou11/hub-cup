@@ -2,16 +2,21 @@ package main
 
 import (
   "os"
-  //"fmt"
+  "path"
+  "bufio"
+  "fmt"
+  "strings"
+  "errors"
   cli "gopkg.in/urfave/cli.v1"
   "github.com/juju/loggo"
 
-  "hub-cup/libhub"
+  //"hub-cup/libhub"
 )
 
 var logger = loggo.GetLogger("")
 
 func main() {
+  homedir, _ := os.UserHomeDir()
   app := &cli.App{
 		Name:      "hub-sync",
 		UsageText: `hub-sync <what> [<from>]`,
@@ -26,7 +31,7 @@ func main() {
 			&cli.StringFlag{
         Name: "token-file",
         Usage: "`path` to your Github token file",
-        Value: "~/.hub-cup",
+        Value: path.Join(homedir, ".hub-cup"),
       },
       &cli.BoolFlag{Name: "force, f", Usage: "As if {git push --force}"},
       &cli.BoolFlag{Name: "dry-run, n", Usage: "Don't actually update"},
@@ -48,7 +53,31 @@ func main() {
         from = c.Args()[1]
       }
       logger.Debugf("what: %s; from: %s;", what, from)
-      hc := libhub.New("")
+      token := c.String("token")
+      token_file := c.String("token-file")
+      if len(token) == 0 {
+        if _, err := os.Stat(token_file); os.IsNotExist(err) {
+          fmt.Println(err)
+          fmt.Println("Token needed!")
+          return errors.New("no-token")
+        }
+        f, err := os.Open(token_file)
+        defer f.Close()
+        if err != nil {
+          return err
+        }
+        reader := bufio.NewReader(f)
+        token, err = reader.ReadString('\n')
+        if err != nil {
+          return err
+        }
+        token = strings.TrimSpace(token)
+      }
+      if len(token) == 0 {
+        fmt.Println("Token file error!")
+        return errors.New("token-file-error")
+      }
+      //hc := libhub.New("")
       return nil
     },
 		Authors: []cli.Author{{Name: "Nogeek", Email: "ritou11@gmail.com"}},

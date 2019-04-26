@@ -14,22 +14,22 @@ type hubCup struct {
 
 var logger = loggo.GetLogger("libhub")
 
-func New(token string) hubCup {
-  var cup hubCup
-  hubCup.Token = token
-  hub.AuthHeader = req.Header{
+func New(token string) (cup hubCup) {
+  cup.Token = token
+  cup.AuthHeader = req.Header{
     "Host": "https://api.github.com",
     "Authorization": "token " + token,
   }
   req.SetTimeout(5 * time.Second)
+  return
 }
 
 func (hc hubCup) getMe() (string, error) {
   r, err := req.Do("get", "/user")
   if err != nil {
-    logger.Debug("Get user error!")
+    logger.Debugf("Get user error!")
     return "", err
   }
-  log.Printf("%+v", r)
+  logger.Infof("%+v", r)
   return "1", err
 }
