@@ -10,7 +10,7 @@ import (
   cli "gopkg.in/urfave/cli.v1"
   "github.com/juju/loggo"
 
-  //"hub-cup/libhub"
+  "hub-cup/libhub"
 )
 
 var logger = loggo.GetLogger("")
@@ -77,7 +77,14 @@ func main() {
         fmt.Println("Token file error!")
         return errors.New("token-file-error")
       }
-      //hc := libhub.New("")
+      logger.Debugf("Token: %s", token)
+      hc := libhub.New(token)
+      me, err := hc.GetMe()
+      if err != nil {
+        logger.Errorf(err.Error())
+        return err
+      }
+      logger.Debugf("Me: %s", me)
       return nil
     },
 		Authors: []cli.Author{{Name: "Nogeek", Email: "ritou11@gmail.com"}},
