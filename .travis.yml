@@ -1,0 +1,34 @@
+language: go
+sudo: false
+go:
+- 1.12.x
+env:
+- GO111MODULE=on
+before_install:
+-
+install:
+-
+script:
+- GOARCH=amd64 GOOS=linux go build -o hub-cup.linux.amd64 ./cli
+- GOARCH=amd64 GOOS=darwin go build -o hub-cup.macos ./cli
+- GOARCH=amd64 GOOS=windows go build -o hub-cup.x64.exe ./cli
+- GOARCH=arm64 GOOS=linux go build -o hub-cup.linux.arm64 ./cli
+- GOARCH=arm GOOS=linux go build -o hub-cup.linux.arm ./cli
+- GOARCH=mipsle GOOS=linux GOMIPS=softfloat go build -o hub-cup.linux.mipsle ./cli
+- GOARCH=mips GOOS=linux GOMIPS=softfloat go build -o hub-cup.linux.mips ./cli
+deploy:
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: dpW5Qd3eCD3dZemO0IySIoeMT6aDEswZ32dhlxbxFR122pYk+YMWFTat6pPmgomrYDKla/d+ZhXEr0Ws8Coe1JEc+w8DYqTqiO5NrLudyj1uzPW8iGgtaOVhYGq44/HZmAe0vgQv2E9cJYogoAci+WpxSUhx9EqvuOQPJeTRDWePcjfv0neU4GHadHPywnR891KwrXdbZHJVTpzplEdR4w8eEoEaBUJJQDa5IE6OIeJVTVWrZanPpmcU0p1UOnlo7cFdVtSqDgEkISw6JKgUVfB2ATSpK+yHoyNd5v7Kr30hiY8v0Gwdn7n+xUq5NCUbxbbQB121bOK5E40eh3gvVXnTkxs0PmP2Ow3zEj5m1L+7uiYoKMeJ9Q/BJPBOR6nMAxg/RGQvZHuaz6mrJsuDNbXE2gpWEvBGK0nwyzP32MljjLZAynpCHeGiONG5guO1MuiafRXqt3DOzNdFJfNuiQNVwXMHO76f95uM7EMe+pN5bTJN5jQ36rmQ8tB15/A75QBUWojcmKL8ZJyyCl4+Q74rHdxYrtgQSgub51GpkzbPB5sKM8I8F7D+0gYGBapVvmK/WqV/he9ZrQ4htneE2pooHKX7xUbo4V8BLDGG3a+D8gKmUc0wrZzxG76g+g9pqwgxVd5uaDu+c6zdVHH9Ib/XjyrvHOJQztrUc/ykVPA=
+  file:
+    - hub-cup.macos
+    - hub-cup.x64.exe
+    - hub-cup.linux.amd64
+    - hub-cup.linux.arm64
+    - hub-cup.linux.arm
+    - hub-cup.linux.mipsle
+    - hub-cup.linux.mips
+  on:
+  tags: true
+    repo: ritou11/hub-cup
