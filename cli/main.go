@@ -5,7 +5,11 @@ import (
   //"fmt"
   cli "gopkg.in/urfave/cli.v1"
   "github.com/juju/loggo"
+
+  "hub-cup/libhub"
 )
+
+var logger = loggo.GetLogger("")
 
 func main() {
   app := &cli.App{
@@ -34,15 +38,17 @@ func main() {
         cli.ShowAppHelpAndExit(c, 0)
       }
       if c.Bool("debug") {
-    		loggo.ConfigureLoggers("<root>=DEBUG;")
+    		loggo.ConfigureLoggers("<root>=DEBUG;libhub=DEBUG")
     	} else {
-    		loggo.ConfigureLoggers("<root>=INFO;")
+    		loggo.ConfigureLoggers("<root>=INFO;libhub=INFO")
     	}
       what := c.Args()[0]
       from := ""
       if len(c.Args()) > 1 {
         from = c.Args()[1]
       }
+      logger.Debugf("what: %s; from: %s;", what, from)
+      libhub.Cup(what, from)
       return nil
     },
 		Authors: []cli.Author{{Name: "Nogeek", Email: "ritou11@gmail.com"}},
