@@ -48,7 +48,7 @@ func main() {
         from = c.Args()[1]
       }
       logger.Debugf("what: %s; from: %s;", what, from)
-      libhub.Cup(what, from)
+      hc := libhub.New("")
       return nil
     },
 		Authors: []cli.Author{{Name: "Nogeek", Email: "ritou11@gmail.com"}},
